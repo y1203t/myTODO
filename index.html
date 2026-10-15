@@ -6,12 +6,117 @@
   <meta name="theme-color" content="#F5F1ED">
   <meta name="description" content="ToDoList：簡單、柔和的待辦事項管理網站。">
   <title>ToDoList｜待辦事項</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+/* ToDoList — 莫蘭迪配色主題 */
+:root {
+  --background: #F5F1ED;        /* 燕麥米白 */
+  --primary: #C9A7A3;           /* 霧玫瑰 */
+  --primary-hover: #B9928E;
+  --selected: #B5ACC4;          /* 灰紫色 */
+  --progress: #B7A494;          /* 奶茶棕 */
+  --card: #FFFCFA;              /* 暖白色 */
+  --text: #5D5552;              /* 深灰棕 */
+  --muted: #756965;             /* 灰棕色 */
+  --border: #E8E0DA;            /* 淡灰米色 */
+  --danger: #A35F62;
+  --radius: 18px;
+  --shadow: 0 8px 24px rgba(93, 85, 82, 0.065);
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+  font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--selected);
+  outline-offset: 3px;
+}
+[hidden] { display: none !important; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.app-container { width: min(600px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 30px; }
+.site-header { text-align: center; margin-bottom: 28px; }
+h1 { font-size: clamp(30px, 6vw, 36px); line-height: 1.2; letter-spacing: 0.01em; margin: 10px 0 6px; }
+.site-subtitle { font-size: 14px; color: var(--muted); margin: 0; }
+h2 { font-size: 19px; line-height: 1.4; margin: 0; font-weight: 700; }
+p { margin: 0; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; margin-bottom: 18px; }
+.add-section h2 { margin-bottom: 15px; }
+.todo-form { display: flex; gap: 10px; }
+.due-field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 13px; }
+.due-field label { font-size: 14px; color: var(--muted); }
+.due-field input { min-height: 40px; border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 6px 10px; color: var(--text); }
+.due-hint { font-size: 12px; color: var(--muted); }
+.todo-content { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.todo-due { font-size: 12px; color: var(--muted); }
+.todo-due.is-overdue { color: #9D5258; font-weight: 700; }
+.todo-due.is-today { color: #806A9A; font-weight: 700; }
+.todo-form input { flex: 1; min-width: 0; border: 1px solid var(--border); background: #fff; border-radius: 12px; padding: 12px 14px; color: var(--text); }
+.todo-form input::placeholder { color: #918781; }
+.button { border: 0; border-radius: 12px; padding: 11px 19px; font-weight: 700; transition: background-color 0.25s, transform 0.2s, box-shadow 0.25s; }
+.button:hover { transform: translateY(-2px); }
+.button:active { transform: scale(0.97); }
+.button-primary { color: #322A28; background: var(--primary); }
+.button-primary:hover { background: var(--primary-hover); box-shadow: 0 5px 12px rgba(93,85,82,0.13); }
+.error-message { color: var(--danger); font-size: 14px; margin-top: 9px; }
+.section-heading, .progress-footer, .tasks-topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.progress-count { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.progress-track { margin-top: 18px; width: 100%; height: 12px; border-radius: 100px; background: #EAE2DE; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: inherit; background: var(--progress); transition: width 0.35s ease; }
+.progress-footer { margin-top: 9px; color: var(--muted); font-size: 13px; }
+.progress-footer strong { color: var(--text); font-size: 15px; }
+.tasks-section { margin-top: 26px; }
+.tasks-topline { margin-bottom: 13px; }
+.count-badge { font-size: 13px; color: var(--muted); background: #EDE5DF; border-radius: 100px; padding: 4px 11px; }
+.filter-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 16px; }
+.filter-button { border: 1px solid var(--border); background: var(--card); color: var(--text); padding: 10px 8px; min-height: 44px; border-radius: 12px; transition: background-color .25s, transform .2s, box-shadow .25s; }
+.filter-button:hover { background: #EEE8E4; transform: translateY(-1px); }
+.filter-button.is-active { background: var(--selected); color: #302B37; border-color: var(--selected); font-weight: 700; }
+.todo-list { padding: 0; margin: 0; list-style: none; display: grid; gap: 10px; }
+.todo-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); animation: fade-in 0.3s ease both; }
+.todo-checkbox { accent-color: var(--selected); width: 19px; height: 19px; flex: 0 0 auto; cursor: pointer; }
+.todo-text { overflow-wrap: anywhere; }
+.todo-item.is-completed .todo-text { color: #9B918C; text-decoration: line-through; }
+.delete-button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-size: 20px; transition: background-color .2s, color .2s; }
+.delete-button:hover { color: var(--danger); background: #F5E8E6; }
+.empty-state { text-align: center; background: var(--card); border: 1px dashed var(--border); border-radius: 16px; padding: 30px 16px; color: var(--muted); font-size: 14px; }
+.empty-illustration { display: block; font-size: 34px; line-height: 1; color: var(--primary); margin-bottom: 10px; }
+.site-footer { text-align: center; font-size: 12px; margin-top: 36px; color: var(--muted); }
+.site-footer span { color: #A5797E; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 480px) {
+  .app-container { width: min(100% - 24px, 600px); padding-top: 30px; }
+  .card { padding: 18px 15px; }
+  .todo-form { gap: 8px; }
+  .todo-form input { padding: 11px; }
+  .button { padding: 11px 13px; }
+  .progress-count { font-size: 12px; }
+  .tasks-topline h2 { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+  </style>
 </head>
 <body>
   <main class="app-container">
     <header class="site-header">
-      <span class="header-decoration" aria-hidden="true">✦</span>
       <h1>ToDoList</h1>
       <p class="site-subtitle">一點一點完成，讓每一天更有條理。</p>
     </header>
@@ -26,6 +131,11 @@
           <span aria-hidden="true">＋</span> 新增
         </button>
       </form>
+      <div class="due-field">
+        <label for="due-date">截止日期（選填）</label>
+        <input id="due-date" type="date" aria-describedby="due-hint">
+        <span id="due-hint" class="due-hint">不設定也可以新增任務</span>
+      </div>
       <p id="input-error" class="error-message" role="alert" hidden>請先輸入待辦事項！</p>
     </section>
 
@@ -68,6 +178,198 @@
 
     <footer class="site-footer">ToDoList <span aria-hidden="true">♡</span> 用心安排每一天</footer>
   </main>
-  <script src="script.js" defer></script>
+  <script>
+// ToDoList：使用原生 JavaScript 管理任務，不需要 Node.js。
+(() => {
+  "use strict";
+
+  const STORAGE_KEY = "todoListTasks";
+  const form = document.querySelector("#todo-form");
+  const input = document.querySelector("#todo-input");
+  const dueDateInput = document.querySelector("#due-date");
+  const error = document.querySelector("#input-error");
+  const list = document.querySelector("#todo-list");
+  const emptyState = document.querySelector("#empty-state");
+  const emptyMessage = document.querySelector("#empty-message");
+  const progressCount = document.querySelector("#progress-count");
+  const progressFill = document.querySelector("#progress-fill");
+  const progressTrack = document.querySelector("#progress-track");
+  const progressPercent = document.querySelector("#progress-percent");
+  const progressMessage = document.querySelector("#progress-message");
+  const totalCount = document.querySelector("#total-count");
+  const filterButtons = document.querySelectorAll(".filter-button");
+
+  let tasks = loadTasks();
+  let currentFilter = "all";
+
+  function loadTasks() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === null) return [];
+      const data = JSON.parse(stored);
+      if (!Array.isArray(data)) return [];
+      // 忽略格式不正確的舊資料，避免畫面出錯。
+      return data.filter(task =>
+        task && Number.isSafeInteger(task.id) && task.id > 0 &&
+        typeof task.text === "string" &&
+        typeof task.completed === "boolean"
+      ).map(task => ({
+        id: task.id,
+        text: task.text,
+        completed: task.completed,
+        dueDate: typeof task.dueDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)
+          ? task.dueDate : ""
+      }));
+    } catch (e) {
+      console.warn("無法讀取已儲存的任務：", e);
+      return [];
+    }
+  }
+
+  function saveTasks() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } catch (e) {
+      console.warn("無法儲存任務，請檢查瀏覽器儲存設定：", e);
+    }
+  }
+
+  function setFilter(filter) {
+    currentFilter = filter;
+    filterButtons.forEach(button => {
+      const active = button.dataset.filter === filter;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    render();
+  }
+
+  function filteredTasks() {
+    if (currentFilter === "active") return tasks.filter(task => !task.completed);
+    if (currentFilter === "completed") return tasks.filter(task => task.completed);
+    return tasks;
+  }
+
+  // 使用當地日期，避免 UTC 時區造成日期判斷偏差。
+  function localDateString() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function render() {
+    list.replaceChildren();
+
+    for (const task of filteredTasks()) {
+      const item = document.createElement("li");
+      item.className = "todo-item";
+      if (task.completed) item.classList.add("is-completed");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "todo-checkbox";
+      checkbox.checked = task.completed;
+      checkbox.setAttribute("aria-label", `標記「${task.text}」完成狀態`);
+      checkbox.addEventListener("change", () => {
+        task.completed = checkbox.checked;
+        saveTasks();
+        render();
+      });
+
+      const label = document.createElement("span");
+      label.className = "todo-text";
+      // 使用 textContent，避免將使用者輸入執行成 HTML。
+      label.textContent = task.text;
+
+      const content = document.createElement("div");
+      content.className = "todo-content";
+      content.append(label);
+
+      if (task.dueDate) {
+        const dateLabel = document.createElement("span");
+        dateLabel.className = "todo-due";
+        const today = localDateString();
+        const dateDisplay = task.dueDate.replaceAll("-", "/");
+        if (!task.completed && task.dueDate < today) {
+          dateLabel.textContent = `已逾期 · ${dateDisplay}`;
+          dateLabel.classList.add("is-overdue");
+        } else if (!task.completed && task.dueDate === today) {
+          dateLabel.textContent = `今天截止 · ${dateDisplay}`;
+          dateLabel.classList.add("is-today");
+        } else {
+          dateLabel.textContent = `截止日期：${dateDisplay}`;
+        }
+        content.append(dateLabel);
+      }
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "delete-button";
+      remove.textContent = "×";
+      remove.title = "刪除任務";
+      remove.setAttribute("aria-label", `刪除「${task.text}」`);
+      remove.addEventListener("click", () => {
+        tasks = tasks.filter(item => item.id !== task.id);
+        saveTasks();
+        render();
+      });
+
+      item.append(checkbox, content, remove);
+      list.append(item);
+    }
+
+    const visibleCount = filteredTasks().length;
+    emptyState.hidden = visibleCount !== 0;
+    if (tasks.length === 0) {
+      emptyMessage.textContent = "目前還沒有待辦事項，新增一個吧！";
+    } else if (currentFilter === "active") {
+      emptyMessage.textContent = "沒有未完成的任務！";
+    } else if (currentFilter === "completed") {
+      emptyMessage.textContent = "目前還沒有完成的任務。";
+    } else {
+      emptyMessage.textContent = "目前還沒有待辦事項，新增一個吧！";
+    }
+
+    const completed = tasks.filter(task => task.completed).length;
+    const percent = tasks.length === 0 ? 0 : Math.round(completed / tasks.length * 100);
+    totalCount.textContent = `${tasks.length} 項任務`;
+    progressCount.textContent = `${completed} / ${tasks.length} 項完成`;
+    progressFill.style.width = `${percent}%`;
+    progressTrack.setAttribute("aria-valuenow", String(percent));
+    progressPercent.textContent = `${percent}%`;
+    progressMessage.textContent = tasks.length > 0 && completed === tasks.length
+      ? "太棒了！所有任務都完成了！"
+      : "一點一點完成，繼續加油！";
+  }
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text) {
+      error.hidden = false;
+      input.focus();
+      return;
+    }
+    error.hidden = true;
+    const nextId = tasks.reduce((max, task) => Math.max(max, task.id), 0) + 1;
+    tasks.push({ id: nextId, text: text.slice(0, 100), completed: false, dueDate: dueDateInput.value || "" });
+    saveTasks();
+    input.value = "";
+    dueDateInput.value = "";
+    setFilter("all");
+    input.focus();
+  });
+
+  input.addEventListener("input", () => { error.hidden = true; });
+  filterButtons.forEach(button => {
+    button.addEventListener("click", () => setFilter(button.dataset.filter));
+  });
+
+  render();
+})();
+
+  </script>
 </body>
 </html>
